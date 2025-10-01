@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id            Int        @id @default(autoincrement())
+  name          String
+  image         String
+  price         Float
+  tags          String[]
+  rating        Float
+  background    String
+  backgroundImg String?
+  isAI          Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  cartItems     CartItem[]
+
+  @@index([isAI])
+  @@index([tags])
+}
+
+model Category {
+  id    String @id
+  label String
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  quantity  Int
+  sessionId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, sessionId])
+  @@index([sessionId])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
