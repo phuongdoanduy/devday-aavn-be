@@ -1,5 +1,5 @@
-import { IProductRepository } from '@domain/repositories/IProductRepository';
-import { Product } from '@domain/entities/Product';
+import { IProductRepository } from '../../../domain/repositories/IProductRepository';
+import { Product } from '../../../domain/entities/Product';
 
 export class GetFeaturedProducts {
   constructor(private productRepository: IProductRepository) {}

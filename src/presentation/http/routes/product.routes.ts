@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ProductController } from '../controllers/ProductController';
-import { asyncHandler } from '@shared/utils/async-handler';
+import { asyncHandler } from '../../../shared/utils/async-handler';
 
 export function createProductRoutes(controller: ProductController): Router {
   const router = Router();

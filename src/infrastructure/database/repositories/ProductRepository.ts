@@ -1,7 +1,7 @@
-import { IProductRepository } from '@domain/repositories/IProductRepository';
-import { Product } from '@domain/entities/Product';
-import { Money } from '@domain/value-objects/Money';
-import { Rating } from '@domain/value-objects/Rating';
+import { IProductRepository } from '../../../domain/repositories/IProductRepository';
+import { Product } from '../../../domain/entities/Product';
+import { Money } from '../../../domain/value-objects/Money';
+import { Rating } from '../../../domain/value-objects/Rating';
 import prisma from '../prisma/client';
 
 export class ProductRepository implements IProductRepository {

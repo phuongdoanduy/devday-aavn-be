@@ -1,6 +1,6 @@
-import { IProductRepository } from '@domain/repositories/IProductRepository';
-import { Product } from '@domain/entities/Product';
-import { ProductNotFound } from '@domain/exceptions/ProductNotFound';
+import { IProductRepository } from '../../../domain/repositories/IProductRepository';
+import { Product } from '../../../domain/entities/Product';
+import { ProductNotFound } from '../../../domain/exceptions/ProductNotFound';
 
 export class GetProductById {
   constructor(private productRepository: IProductRepository) {}

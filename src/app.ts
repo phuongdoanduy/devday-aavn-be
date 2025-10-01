@@ -1,19 +1,19 @@
 import express from 'express';
 import helmet from 'helmet';
-import { config } from '@infrastructure/config/env.config';
-import { corsMiddleware } from '@presentation/http/middleware/cors';
-import { errorHandler } from '@presentation/http/middleware/error-handler';
-import { createRoutes } from '@presentation/http/routes';
+import { config } from './infrastructure/config/env.config';
+import { corsMiddleware } from './presentation/http/middleware/cors';
+import { errorHandler } from './presentation/http/middleware/error-handler';
+import { createRoutes } from './presentation/http/routes';
 
 // Dependency Injection Setup
-import { ProductRepository } from '@infrastructure/database/repositories/ProductRepository';
+import { ProductRepository } from './infrastructure/database/repositories/ProductRepository';
 
-import { GetAllProducts } from '@application/use-cases/product/GetAllProducts';
-import { GetProductById } from '@application/use-cases/product/GetProductById';
-import { GetFeaturedProducts } from '@application/use-cases/product/GetFeaturedProducts';
-import { SearchProducts } from '@application/use-cases/product/SearchProducts';
+import { GetAllProducts } from './application/use-cases/product/GetAllProducts';
+import { GetProductById } from './application/use-cases/product/GetProductById';
+import { GetFeaturedProducts } from './application/use-cases/product/GetFeaturedProducts';
+import { SearchProducts } from './application/use-cases/product/SearchProducts';
 
-import { ProductController } from '@presentation/http/controllers/ProductController';
+import { ProductController } from './presentation/http/controllers/ProductController';
 
 function setupDependencies() {
   // Repositories

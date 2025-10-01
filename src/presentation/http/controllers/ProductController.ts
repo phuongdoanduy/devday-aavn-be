@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { GetAllProducts } from '@application/use-cases/product/GetAllProducts';
-import { GetProductById } from '@application/use-cases/product/GetProductById';
-import { GetFeaturedProducts } from '@application/use-cases/product/GetFeaturedProducts';
-import { SearchProducts } from '@application/use-cases/product/SearchProducts';
-import { ProductMapper } from '@application/mappers/ProductMapper';
+import { GetAllProducts } from '../../../application/use-cases/product/GetAllProducts';
+import { GetProductById } from '../../../application/use-cases/product/GetProductById';
+import { GetFeaturedProducts } from '../../../application/use-cases/product/GetFeaturedProducts';
+import { SearchProducts } from '../../../application/use-cases/product/SearchProducts';
+import { ProductMapper } from '../../../application/mappers/ProductMapper';
 import { ApiResponse } from '../../responses/ApiResponse';
 
 export class ProductController {

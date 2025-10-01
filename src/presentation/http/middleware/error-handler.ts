@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { DomainException } from '@domain/exceptions/DomainException';
+import { DomainException } from '../../../domain/exceptions/DomainException';
 import { ErrorResponse } from '../../responses/ErrorResponse';
 
 export function errorHandler(

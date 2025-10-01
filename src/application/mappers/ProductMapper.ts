@@ -1,4 +1,4 @@
-import { Product } from '@domain/entities/Product';
+import { Product } from '../../domain/entities/Product';
 import { ProductDTO } from '../dtos/ProductDTO';
 
 export class ProductMapper {
