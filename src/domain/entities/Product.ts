@@ -42,6 +42,10 @@ export class Product {
    * Check if product is available for purchase
    */
   isAvailable(): boolean {
+    // Pre-orders are available even with 0 stock
+    if (this.stockStatus === StockStatus.PRE_ORDER) {
+      return true;
+    }
     return StockStatusRules.canPurchase(this.stockStatus) && this.stockQuantity > 0;
   }
 
