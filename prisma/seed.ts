@@ -278,7 +278,7 @@ async function main() {
     const stockData = getStockData(product.id);
     await prisma.product.upsert({
       where: { id: product.id },
-      update: {},
+      update: stockData,
       create: {
         ...product,
         ...stockData
@@ -311,9 +311,10 @@ async function main() {
   });
 
   for (const product of aiProducts) {
+    const stockData = getStockData(product.id);
     await prisma.product.upsert({
       where: { id: product.id },
-      update: {},
+      update: stockData,
       create: product
     });
   }
