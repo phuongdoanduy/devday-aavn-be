@@ -2,6 +2,7 @@ import { IProductRepository } from '../../../domain/repositories/IProductReposit
 import { Product } from '../../../domain/entities/Product';
 import { Money } from '../../../domain/value-objects/Money';
 import { Rating } from '../../../domain/value-objects/Rating';
+import { StockStatus } from '../../../domain/enums/StockStatus';
 import prisma from '../prisma/client';
 
 export class ProductRepository implements IProductRepository {
@@ -97,7 +98,9 @@ export class ProductRepository implements IProductRepository {
       new Rating(data.rating),
       data.background,
       data.backgroundImg,
-      data.isAI
+      data.isAI,
+      data.stockQuantity,
+      data.stockStatus as StockStatus
     );
   }
 }

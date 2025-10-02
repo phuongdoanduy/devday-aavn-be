@@ -1,6 +1,27 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, StockStatus } = require('@prisma/client');
 
 const prisma = new PrismaClient();
+
+// Generate stock data based on product ID for variety
+function getStockData(productId) {
+  // Create different stock scenarios for variety
+  const scenarios = [
+    productId % 17 === 0, // OUT_OF_STOCK
+    productId % 13 === 0, // LOW_STOCK
+    productId % 23 === 0, // PRE_ORDER
+  ];
+
+  if (scenarios[0]) {
+    return { stockQuantity: 0, stockStatus: StockStatus.OUT_OF_STOCK };
+  } else if (scenarios[1]) {
+    return { stockQuantity: 10 + (productId % 10), stockStatus: StockStatus.LOW_STOCK };
+  } else if (scenarios[2]) {
+    return { stockQuantity: 0, stockStatus: StockStatus.PRE_ORDER };
+  } else {
+    // Most products are in stock with good quantity
+    return { stockQuantity: 50 + (productId % 150), stockStatus: StockStatus.IN_STOCK };
+  }
+}
 
 async function main() {
   console.log('Starting seed...');
@@ -254,10 +275,14 @@ async function main() {
   ];
 
   for (const product of products) {
+    const stockData = getStockData(product.id);
     await prisma.product.upsert({
       where: { id: product.id },
       update: {},
-      create: product
+      create: {
+        ...product,
+        ...stockData
+      }
     });
   }
 
@@ -268,8 +293,11 @@ async function main() {
       ? `/images/xmas-bg/${p.id}.png`
       : `/images/xmas-bg/${p.id - 100}.jpg`;
 
+    const aiProductId = p.id + 1000;
+    const stockData = getStockData(aiProductId);
+
     return {
-      id: p.id + 1000,
+      id: aiProductId,
       name: p.name + " by AI",
       image: p.image,
       price: p.price,
@@ -277,7 +305,8 @@ async function main() {
       rating: p.rating,
       background: p.background,
       backgroundImg: urlBG,
-      isAI: true
+      isAI: true,
+      ...stockData
     };
   });
 

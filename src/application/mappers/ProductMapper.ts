@@ -11,7 +11,12 @@ export class ProductMapper {
       tags: product.tags,
       rating: product.rating.value,
       background: product.background,
-      backgroundImg: product.backgroundImg
+      backgroundImg: product.backgroundImg,
+      stockQuantity: product.stockQuantity,
+      stockStatus: product.stockStatus,
+      isAvailable: product.isAvailable(),
+      isLowStock: product.isLowStock(),
+      isOutOfStock: product.isOutOfStock()
     };
   }
 

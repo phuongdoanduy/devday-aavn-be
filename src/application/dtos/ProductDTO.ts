@@ -7,4 +7,9 @@ export interface ProductDTO {
   rating: number;
   background: string;
   backgroundImg?: string;
+  stockQuantity: number;
+  stockStatus: string;
+  isAvailable: boolean;
+  isLowStock: boolean;
+  isOutOfStock: boolean;
 }

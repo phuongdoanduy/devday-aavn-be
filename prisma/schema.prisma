@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StockStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  LOW_STOCK
+  PRE_ORDER
+}
+
 model Product {
   id            Int        @id @default(autoincrement())
   name          String
@@ -16,13 +23,16 @@ model Product {
   rating        Float
   background    String
   backgroundImg String?
-  isAI          Boolean    @default(false)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  isAI          Boolean      @default(false)
+  stockQuantity Int          @default(100)
+  stockStatus   StockStatus  @default(IN_STOCK)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   cartItems     CartItem[]
 
   @@index([isAI])
   @@index([tags])
+  @@index([stockStatus])
 }
 
 model Category {
