@@ -38,8 +38,8 @@ function setupDependencies() {
   const getCart = new GetCart(cartRepo);
   const addToCart = new AddToCart(cartRepo, productRepo);
   const updateCartItem = new UpdateCartItem(cartRepo, productRepo);
-  const removeFromCart = new RemoveFromCart(cartRepo);
-  const clearCart = new ClearCart(cartRepo);
+  const removeFromCart = new RemoveFromCart(cartRepo, productRepo);
+  const clearCart = new ClearCart(cartRepo, productRepo);
 
   // Controllers
   const productController = new ProductController(

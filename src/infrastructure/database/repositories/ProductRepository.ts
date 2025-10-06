@@ -88,6 +88,48 @@ export class ProductRepository implements IProductRepository {
     return products.map(this.toDomain);
   }
 
+  async updateStockQuantity(productId: number, quantityDelta: number): Promise<Product> {
+    // Get current product to calculate new stock
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: productId }
+    });
+
+    if (!currentProduct) {
+      throw new Error(`Product with id ${productId} not found`);
+    }
+
+    // Calculate new stock quantity
+    const newStockQuantity = currentProduct.stockQuantity + quantityDelta;
+
+    // Prevent negative stock
+    if (newStockQuantity < 0) {
+      throw new Error(`Cannot update stock: resulting quantity would be negative (current: ${currentProduct.stockQuantity}, delta: ${quantityDelta})`);
+    }
+
+    // Determine new stock status based on quantity (unless it's a PRE_ORDER)
+    let newStockStatus = currentProduct.stockStatus;
+    if (currentProduct.stockStatus !== 'PRE_ORDER') {
+      if (newStockQuantity === 0) {
+        newStockStatus = 'OUT_OF_STOCK';
+      } else if (newStockQuantity <= 20) {
+        newStockStatus = 'LOW_STOCK';
+      } else {
+        newStockStatus = 'IN_STOCK';
+      }
+    }
+
+    // Update product with new stock quantity and status
+    const updatedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        stockQuantity: newStockQuantity,
+        stockStatus: newStockStatus
+      }
+    });
+
+    return this.toDomain(updatedProduct);
+  }
+
   private toDomain(data: any): Product {
     return new Product(
       data.id,

@@ -47,6 +47,17 @@ export class UpdateCartItem {
       );
     }
 
+    // Calculate the difference and adjust stock accordingly (only if not PRE_ORDER)
+    if (!product.isPreOrder()) {
+      const quantityDifference = existingItem.quantity - quantity;
+
+      // If quantityDifference > 0: user is decreasing quantity, so restore stock (positive delta)
+      // If quantityDifference < 0: user is increasing quantity, so decrement stock (negative delta)
+      if (quantityDifference !== 0) {
+        await this.productRepository.updateStockQuantity(productId, quantityDifference);
+      }
+    }
+
     // Update cart item
     return await this.cartRepository.updateItem(sessionId, productId, quantity);
   }

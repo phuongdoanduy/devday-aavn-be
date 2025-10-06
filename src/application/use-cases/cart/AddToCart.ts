@@ -49,6 +49,11 @@ export class AddToCart {
       );
     }
 
+    // Decrement stock quantity (only if not PRE_ORDER)
+    if (!product.isPreOrder()) {
+      await this.productRepository.updateStockQuantity(productId, -quantity);
+    }
+
     // Add to cart
     return await this.cartRepository.addItem(sessionId, productId, quantity);
   }

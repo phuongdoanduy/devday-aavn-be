@@ -8,4 +8,5 @@ export interface IProductRepository {
   findFeatured(isAI: boolean): Promise<Product[]>;
   findTopRated(isAI: boolean): Promise<Product[]>;
   search(query: string, isAI: boolean): Promise<Product[]>;
+  updateStockQuantity(productId: number, quantityDelta: number): Promise<Product>;
 }
