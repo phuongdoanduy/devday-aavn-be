@@ -1,4 +1,6 @@
 import { PrismaClient, StockStatus } from '@prisma/client';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const prisma = new PrismaClient();
 
@@ -23,8 +25,37 @@ function getStockData(productId: number): { stockQuantity: number; stockStatus: 
   }
 }
 
+// Load Cloudinary image URLs from Products_assets.json
+function loadCloudinaryImages(): string[] {
+  const assetsPath = path.join(__dirname, '..', '..', 'Products_assets.json');
+  const assetsData = fs.readFileSync(assetsPath, 'utf-8');
+  const assets = JSON.parse(assetsData);
+  return assets.resources.map((resource: any) => resource.secure_url);
+}
+
+// Get random image from array using seeded randomness based on ID
+function getRandomImage(images: string[], seed: number): string {
+  const index = seed % images.length;
+  return images[index];
+}
+
+// Assign product images randomly
+function assignProductImages(productId: number, images: string[]): { image: string; backgroundImg?: string } {
+  const imageIndex = (productId * 7) % images.length;
+  const bgIndex = (productId * 13) % images.length;
+
+  return {
+    image: images[imageIndex],
+    backgroundImg: images[bgIndex]
+  };
+}
+
 async function main() {
   console.log('Starting seed...');
+
+  // Load Cloudinary images
+  const cloudinaryImages = loadCloudinaryImages();
+  console.log(`Loaded ${cloudinaryImages.length} Cloudinary images`);
 
   // Seed categories
   console.log('Seeding categories...');
@@ -45,7 +76,6 @@ async function main() {
     {
       id: 100,
       name: "Xmas Globin",
-      image: "/images/100.png",
       price: 3.12,
       tags: ['xmas', 'candy', 'queen', 'Season Choice'],
       rating: 4.5,
@@ -55,7 +85,6 @@ async function main() {
     {
       id: 101,
       name: "City Hunter",
-      image: "/images/101.png",
       price: 2.15,
       tags: ['monster', 'hunter', 'sporty'],
       rating: 4.5,
@@ -65,7 +94,6 @@ async function main() {
     {
       id: 102,
       name: "Cosy Student",
-      image: "/images/102.png",
       price: 1.63,
       tags: ['king', 'student', 'blue', 'sporty'],
       rating: 4.5,
@@ -75,7 +103,6 @@ async function main() {
     {
       id: 103,
       name: "Baby Boy",
-      image: "/images/103.png",
       price: 9.30,
       tags: ['sporty', 'blue'],
       rating: 4.5,
@@ -85,7 +112,6 @@ async function main() {
     {
       id: 104,
       name: "Active Summer",
-      image: "/images/104.png",
       price: 4.8,
       tags: ['sporty', 'summer', 'Season Choice'],
       rating: 4.5,
@@ -95,7 +121,6 @@ async function main() {
     {
       id: 105,
       name: "Mystery Landlord",
-      image: "/images/105.png",
       price: 2.58,
       tags: ['monster', 'landlord', 'Season Choice'],
       rating: 4.5,
@@ -105,7 +130,6 @@ async function main() {
     {
       id: 106,
       name: "Sporty Friend",
-      image: "/images/106.png",
       price: 1.2,
       tags: ['sporty', 'friend', 'blue'],
       rating: 4.5,
@@ -115,7 +139,6 @@ async function main() {
     {
       id: 107,
       name: "Halloween Cuties",
-      image: "/images/107.png",
       price: 12.6,
       tags: ['queen', 'Season Choice', 'halloween', 'monster'],
       rating: 4.5,
@@ -125,7 +148,6 @@ async function main() {
     {
       id: 108,
       name: "Let's go camping",
-      image: "/images/108.png",
       price: 7.75,
       tags: ['camping', 'sporty', 'Season Choice'],
       rating: 4.5,
@@ -135,7 +157,6 @@ async function main() {
     {
       id: 109,
       name: "Study hard",
-      image: "/images/109.png",
       price: 10.1,
       tags: ['student', 'sporty', 'boy', 'blue'],
       rating: 4.5,
@@ -145,7 +166,6 @@ async function main() {
     {
       id: 110,
       name: "Awesome Pumpkin",
-      image: "/images/110.png",
       price: 3.6,
       tags: ['halloween', 'monster', 'Season Choice'],
       rating: 4.5,
@@ -155,7 +175,6 @@ async function main() {
     {
       id: 111,
       name: "Warm cave",
-      image: "/images/111.png",
       price: 5.3,
       tags: ['monster', 'cave', 'Season Choice'],
       rating: 4.5,
@@ -165,7 +184,6 @@ async function main() {
     {
       id: 113,
       name: "Snow man",
-      image: "/images/113.png",
       price: 5.3,
       tags: ['snow', 'xmas', 'cold'],
       rating: 4.5,
@@ -175,7 +193,6 @@ async function main() {
     {
       id: 114,
       name: "Santa's surprise",
-      image: "/images/114.png",
       price: 6.3,
       tags: ['santa', 'xmas', 'gift', 'boy'],
       rating: 4.5,
@@ -185,7 +202,6 @@ async function main() {
     {
       id: 115,
       name: "Jingle all the slide",
-      image: "/images/115.png",
       price: 4.3,
       tags: ['xmas', 'santa', 'sleigh', 'snow', 'sporty'],
       rating: 4.5,
@@ -195,7 +211,6 @@ async function main() {
     {
       id: 116,
       name: "Santa Claus is coming",
-      image: "/images/116.png",
       price: 5.8,
       tags: ['santa', 'xmas', 'cute'],
       rating: 4.5,
@@ -205,7 +220,6 @@ async function main() {
     {
       id: 117,
       name: "Peter Pan",
-      image: "/images/117.png",
       price: 2.58,
       tags: ['camping', 'xmas', 'Season Choice', 'boy'],
       rating: 4.5,
@@ -215,7 +229,6 @@ async function main() {
     {
       id: 118,
       name: "Santa claus",
-      image: "/images/118.png",
       price: 3.2,
       tags: ['xmas', 'santa', 'Season Choice'],
       rating: 4.5,
@@ -225,7 +238,6 @@ async function main() {
     {
       id: 119,
       name: "Sound of love",
-      image: "/images/119.png",
       price: 12.6,
       tags: ['baby', 'angel', 'love', 'xmas', 'music'],
       rating: 4.5,
@@ -235,7 +247,6 @@ async function main() {
     {
       id: 120,
       name: "Baby Angel",
-      image: "/images/120.png",
       price: 7.5,
       tags: ['xmas', 'baby', 'angel'],
       rating: 4.5,
@@ -245,7 +256,6 @@ async function main() {
     {
       id: 121,
       name: "King",
-      image: "/images/121.png",
       price: 10.1,
       tags: ['king', 'xmas', 'Season Choice'],
       rating: 4.5,
@@ -255,7 +265,6 @@ async function main() {
     {
       id: 122,
       name: "Little Red Riding Hood",
-      image: "/images/122.png",
       price: 3.6,
       tags: ['Girl', 'student', 'camping', 'xmas'],
       rating: 4.5,
@@ -265,7 +274,6 @@ async function main() {
     {
       id: 123,
       name: "Friends Forever",
-      image: "/images/123.png",
       price: 5.3,
       tags: ['friend', 'xmas', 'sporty'],
       rating: 5,
@@ -276,11 +284,13 @@ async function main() {
 
   for (const product of products) {
     const stockData = getStockData(product.id);
+    const imageData = assignProductImages(product.id, cloudinaryImages);
     await prisma.product.upsert({
       where: { id: product.id },
       update: stockData,
       create: {
         ...product,
+        ...imageData,
         ...stockData
       }
     });
@@ -289,33 +299,29 @@ async function main() {
   // Seed AI products
   console.log('Seeding AI products...');
   const aiProducts = products.map(p => {
-    const urlBG = (p.id === 100 || (p.id > 112 && p.id < 124))
-      ? `/images/xmas-bg/${p.id}.png`
-      : `/images/xmas-bg/${p.id - 100}.jpg`;
-
     const aiProductId = p.id + 1000;
-    const stockData = getStockData(aiProductId);
-
     return {
       id: aiProductId,
       name: p.name + " by AI",
-      image: p.image,
       price: p.price,
       tags: p.tags,
       rating: p.rating,
       background: p.background,
-      backgroundImg: urlBG,
-      isAI: true,
-      ...stockData
+      isAI: true
     };
   });
 
   for (const product of aiProducts) {
     const stockData = getStockData(product.id);
+    const imageData = assignProductImages(product.id, cloudinaryImages);
     await prisma.product.upsert({
       where: { id: product.id },
       update: stockData,
-      create: product
+      create: {
+        ...product,
+        ...imageData,
+        ...stockData
+      }
     });
   }
 
