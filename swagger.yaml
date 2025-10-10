@@ -1,0 +1,661 @@
+openapi: 3.0.3
+info:
+  title: Product Shopping API
+  description: |
+    A comprehensive e-commerce API built with Clean Architecture pattern.
+
+    ## Features
+    - Product catalog management
+    - Shopping cart operations
+    - Session-based cart tracking
+    - Product search and filtering
+    - Featured and top-rated products
+
+    ## Base URL
+    - **Development**: http://localhost:8080
+    - **Production**: https://your-heroku-app.herokuapp.com
+
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://devday-aavn-d5284e914439.herokuapp.com
+    description: Production server
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Products
+    description: Product catalog operations
+  - name: Cart
+    description: Shopping cart operations
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if the API is running and healthy
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: 2024-01-15T10:30:00.000Z
+
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: |
+        Retrieve all products with optional filtering by category, search term, or AI-generated products.
+
+        - Filter by category
+        - Search by product name
+        - Filter AI vs non-AI products
+      parameters:
+        - name: isAI
+          in: query
+          description: Filter AI-generated products
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: category
+          in: query
+          description: Filter by category (xmas, candy, monster, camping, sporty)
+          required: false
+          schema:
+            type: string
+            enum: [xmas, candy, monster, camping, sporty]
+        - name: search
+          in: query
+          description: Search products by name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Product"
+                      total:
+                        type: integer
+                        example: 24
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/products/featured:
+    get:
+      tags:
+        - Products
+      summary: Get featured products
+      description: Retrieve products marked as "Season Choice" or featured
+      parameters:
+        - name: isAI
+          in: query
+          description: Filter AI-generated products
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Featured products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Product"
+                      total:
+                        type: integer
+                        example: 5
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/products/top-rated:
+    get:
+      tags:
+        - Products
+      summary: Get top-rated products
+      description: Retrieve products with rating >= 5.0
+      parameters:
+        - name: isAI
+          in: query
+          description: Filter AI-generated products
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Top-rated products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Product"
+                      total:
+                        type: integer
+                        example: 8
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: Retrieve a single product by its ID
+      parameters:
+        - name: id
+          in: path
+          description: Product ID
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: isAI
+          in: query
+          description: Filter AI-generated products
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Product"
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/cart:
+    get:
+      tags:
+        - Cart
+      summary: Get cart items
+      description: Retrieve all items in the current session's cart
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/Cart"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      tags:
+        - Cart
+      summary: Add item to cart
+      description: Add a product to the cart or update quantity if already exists
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: integer
+                  minimum: 1
+                  description: Product ID to add
+                  example: 100
+                quantity:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  description: Quantity to add (1-100)
+                  example: 2
+      responses:
+        "201":
+          description: Item added to cart successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/CartItem"
+                  message:
+                    type: string
+                    example: Item added to cart
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Cart
+      summary: Clear cart
+      description: Remove all items from the cart
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Cart cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: null
+                    example: null
+                  message:
+                    type: string
+                    example: Cart cleared
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/cart/total:
+    get:
+      tags:
+        - Cart
+      summary: Get cart total
+      description: Get the total price and item count for the cart
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+      responses:
+        "200":
+          description: Cart total retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                        format: float
+                        description: Total cart price
+                        example: 25.86
+                      itemCount:
+                        type: integer
+                        description: Total number of items in cart
+                        example: 6
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/cart/{productId}:
+    put:
+      tags:
+        - Cart
+      summary: Update cart item quantity
+      description: Update the quantity of a specific product in the cart
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: productId
+          in: path
+          description: Product ID to update
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  description: New quantity (1-100)
+                  example: 3
+      responses:
+        "200":
+          description: Cart item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/CartItem"
+                  message:
+                    type: string
+                    example: Cart item updated
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Cart
+      summary: Remove item from cart
+      description: Remove a specific product from the cart
+      parameters:
+        - $ref: "#/components/parameters/SessionId"
+        - name: productId
+          in: path
+          description: Product ID to remove
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Item removed from cart successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: null
+                    example: null
+                  message:
+                    type: string
+                    example: Item removed from cart
+        "404":
+          $ref: "#/components/responses/ProductNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  parameters:
+    SessionId:
+      name: x-session-id
+      in: header
+      description: Session ID for cart tracking (auto-generated if not provided)
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: 550e8400-e29b-41d4-a716-446655440000
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Product ID
+          example: 100
+        name:
+          type: string
+          description: Product name
+          example: Xmas Globin
+        image:
+          type: string
+          description: Product image URL
+          example: /images/100.png
+        price:
+          type: number
+          format: float
+          description: Product price in USD
+          example: 3.12
+        tags:
+          type: array
+          description: Product tags/categories
+          items:
+            type: string
+          example: [xmas, candy, queen, Season Choice]
+        rating:
+          type: number
+          format: float
+          description: Product rating (0-5)
+          minimum: 0
+          maximum: 5
+          example: 4.5
+        background:
+          type: string
+          description: Background color in hex
+          example: "#49B649"
+        backgroundImg:
+          type: string
+          nullable: true
+          description: Background image URL (optional)
+          example: /images/xmas-bg/100.png
+        stockQuantity:
+          type: integer
+          description: Available stock quantity
+          example: 50
+        stockStatus:
+          type: string
+          description: Stock status
+          enum: [IN_STOCK, LOW_STOCK, OUT_OF_STOCK]
+          example: IN_STOCK
+        isAvailable:
+          type: boolean
+          description: Whether product is available for purchase
+          example: true
+        isLowStock:
+          type: boolean
+          description: Whether product has low stock
+          example: false
+        isOutOfStock:
+          type: boolean
+          description: Whether product is out of stock
+          example: false
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Cart item ID
+          example: 1
+        productId:
+          type: integer
+          description: Product ID
+          example: 100
+        quantity:
+          type: integer
+          description: Item quantity
+          example: 2
+        product:
+          type: object
+          description: Product details
+          properties:
+            id:
+              type: integer
+              example: 100
+            name:
+              type: string
+              example: Xmas Globin
+            price:
+              type: number
+              format: float
+              example: 3.12
+            image:
+              type: string
+              example: /images/100.png
+            stockQuantity:
+              type: integer
+              example: 50
+            stockStatus:
+              type: string
+              example: IN_STOCK
+            isAvailable:
+              type: boolean
+              example: true
+        subtotal:
+          type: number
+          format: float
+          description: Item subtotal (price × quantity)
+          example: 6.24
+
+    Cart:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Session ID
+          example: 550e8400-e29b-41d4-a716-446655440000
+        items:
+          type: array
+          description: Cart items
+          items:
+            $ref: "#/components/schemas/CartItem"
+        total:
+          type: number
+          format: float
+          description: Total cart price
+          example: 25.86
+        itemCount:
+          type: integer
+          description: Total number of items
+          example: 6
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid request data
+            details:
+              type: object
+              additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: Invalid request data
+              details:
+                quantity: Quantity must be at least 1
+
+    ProductNotFound:
+      description: Product not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            success: false
+            error:
+              code: PRODUCT_NOT_FOUND
+              message: Product with ID 999 not found
+              details: {}
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            success: false
+            error:
+              code: INTERNAL_SERVER_ERROR
+              message: An unexpected error occurred
+              details: {}

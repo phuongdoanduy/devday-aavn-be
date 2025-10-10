@@ -13,6 +13,8 @@ import { GetAllProducts } from './application/use-cases/product/GetAllProducts';
 import { GetProductById } from './application/use-cases/product/GetProductById';
 import { GetFeaturedProducts } from './application/use-cases/product/GetFeaturedProducts';
 import { SearchProducts } from './application/use-cases/product/SearchProducts';
+import { UpdateProduct } from './application/use-cases/product/UpdateProduct';
+import { BatchUpdateProducts } from './application/use-cases/product/BatchUpdateProducts';
 
 import { GetCart } from './application/use-cases/cart/GetCart';
 import { AddToCart } from './application/use-cases/cart/AddToCart';
@@ -33,6 +35,8 @@ function setupDependencies() {
   const getProductById = new GetProductById(productRepo);
   const getFeaturedProducts = new GetFeaturedProducts(productRepo);
   const searchProducts = new SearchProducts(productRepo);
+  const updateProduct = new UpdateProduct(productRepo);
+  const batchUpdateProducts = new BatchUpdateProducts(productRepo);
 
   // Cart Use Cases
   const getCart = new GetCart(cartRepo);
@@ -46,7 +50,9 @@ function setupDependencies() {
     getAllProducts,
     getProductById,
     getFeaturedProducts,
-    searchProducts
+    searchProducts,
+    updateProduct,
+    batchUpdateProducts
   );
 
   const cartController = new CartController(

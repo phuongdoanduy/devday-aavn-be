@@ -3,6 +3,8 @@ import { GetAllProducts } from '../../../application/use-cases/product/GetAllPro
 import { GetProductById } from '../../../application/use-cases/product/GetProductById';
 import { GetFeaturedProducts } from '../../../application/use-cases/product/GetFeaturedProducts';
 import { SearchProducts } from '../../../application/use-cases/product/SearchProducts';
+import { UpdateProduct } from '../../../application/use-cases/product/UpdateProduct';
+import { BatchUpdateProducts } from '../../../application/use-cases/product/BatchUpdateProducts';
 import { ProductMapper } from '../../../application/mappers/ProductMapper';
 import { ApiResponse } from '../../responses/ApiResponse';
 
@@ -11,7 +13,9 @@ export class ProductController {
     private getAllProducts: GetAllProducts,
     private getProductById: GetProductById,
     private getFeaturedProducts: GetFeaturedProducts,
-    private searchProducts: SearchProducts
+    private searchProducts: SearchProducts,
+    private updateProduct: UpdateProduct,
+    private batchUpdateProducts: BatchUpdateProducts
   ) {}
 
   getAll = async (req: Request, res: Response) => {
@@ -60,5 +64,24 @@ export class ProductController {
     const productsDTO = ProductMapper.toDTOList(topRated);
 
     res.json(ApiResponse.success({ products: productsDTO, total: productsDTO.length }));
+  };
+
+  update = async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const updateData = req.body;
+
+    const updatedProduct = await this.updateProduct.execute(id, updateData);
+    const productDTO = ProductMapper.toDTO(updatedProduct);
+
+    res.json(ApiResponse.success(productDTO, 'Product updated successfully'));
+  };
+
+  batchUpdate = async (req: Request, res: Response) => {
+    const { updates } = req.body;
+
+    const updatedProducts = await this.batchUpdateProducts.execute(updates);
+    const productsDTO = ProductMapper.toDTOList(updatedProducts);
+
+    res.json(ApiResponse.success({ products: productsDTO, total: productsDTO.length }, 'Products updated successfully'));
   };
 }
