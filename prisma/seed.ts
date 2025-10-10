@@ -27,7 +27,7 @@ function getStockData(productId: number): { stockQuantity: number; stockStatus: 
 
 // Load Cloudinary image URLs from Products_assets.json
 function loadCloudinaryImages(): string[] {
-  const assetsPath = path.join(__dirname, '..', '..', 'Products_assets.json');
+  const assetsPath = path.join(__dirname, '..', 'Products_assets.json');
   const assetsData = fs.readFileSync(assetsPath, 'utf-8');
   const assets = JSON.parse(assetsData);
   return assets.resources.map((resource: any) => resource.secure_url);
