@@ -287,7 +287,10 @@ async function main() {
     const imageData = assignProductImages(product.id, cloudinaryImages);
     await prisma.product.upsert({
       where: { id: product.id },
-      update: stockData,
+      update: {
+        ...stockData,
+        ...imageData
+      },
       create: {
         ...product,
         ...imageData,
@@ -316,7 +319,10 @@ async function main() {
     const imageData = assignProductImages(product.id, cloudinaryImages);
     await prisma.product.upsert({
       where: { id: product.id },
-      update: stockData,
+      update: {
+        ...stockData,
+        ...imageData
+      },
       create: {
         ...product,
         ...imageData,
